@@ -1,1 +1,1 @@
-# example-2021
+# Seminar: Topics in Financial Econometrics
