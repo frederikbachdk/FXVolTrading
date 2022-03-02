@@ -30,5 +30,5 @@ raw_data_ex.columns = [col.replace('USDGBP','GBPUSD') for col in raw_data_ex.col
 raw_data_ex.set_index(raw_data_ex.columns[raw_data_ex.columns.str.contains('Dates')][0],inplace=True)
 raw_data_ex.index.rename('Dates',inplace=True)
 
-for cross in fx:
-    raw_data_iv.filter(regex=cross).join(raw_data_ex.filter(regex=cross),how='left').to_csv(f"data/{cross}.csv")
+for pair in fx:
+    raw_data_iv.filter(regex=pair).join(raw_data_ex.filter(regex=pair),how='left').to_csv(f"data/{pair}.csv")
