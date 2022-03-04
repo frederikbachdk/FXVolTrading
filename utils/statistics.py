@@ -114,7 +114,7 @@ def get_desctiptive_stats(df:pd.DataFrame, plots:bool=False):
     print('ADF Statistic: %f' % result[0])
     print('p-value: %f' % result[1])
 
-    if p < alpha:  
+    if result[1] < alpha:  
         print("The null of non-stationarity can be rejected")
     else:
         print("The null of non-stationarity cannot be rejected")
