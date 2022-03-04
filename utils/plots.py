@@ -81,7 +81,8 @@ def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y'], c
         df[series].plot(ax=ax, ylabel=label, title=key, visible=True)
 
         myFmt = mdates.DateFormatter("%b-%Y")
-        ax.set_xlim(df[series].index.min(), df[series].index.max())
+        # as long as individual x-axis doesn't show, this has to be commented out....
+        #ax.set_xlim(df[series].index.min(), df[series].index.max())
         ax.get_xaxis().set_visible(True)
         ax.xaxis.set_major_locator(mdates.MonthLocator(interval=12))
         ax.xaxis.set_major_formatter(myFmt)
