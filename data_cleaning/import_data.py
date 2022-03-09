@@ -10,9 +10,10 @@ def import_data(fx_pair:str) -> pd.DataFrame:
     df.index = pd.to_datetime(df.index)
     df.columns = [col.replace(fx_pair,'') for col in df.columns.values]
     df.columns = map(str.lower, df.columns)
+    
     # convert 
     if fx_pair in ['EURUSD', 'GBPUSD']:
-        df[['px_last','px_bid', 'px_ask']] = 1/ df[['px_last','px_bid', 'px_ask']]
+        df[['px_last','px_bid', 'px_ask']] = 1 / df[['px_last','px_bid', 'px_ask']]
     
     # calc returns and rolling std dev
     df['log_ret'] = (np.log(df.px_last) - np.log(df.px_last.shift(1)))

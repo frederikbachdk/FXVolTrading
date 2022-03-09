@@ -6,16 +6,9 @@ from scipy import stats
 from statsmodels.graphics.tsaplots import plot_acf 
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.regression.linear_model import OLS
-from statsmodels.stats.stattools import durbin_watson
+from statsmodels.stats.diagnostic import acorr_ljungbox
 from statsmodels.stats.diagnostic import het_breuschpagan
-
-
-def durbin_watson(data):
-    '''
-    returns dw test statistic. need to figure out critical values
-    '''
-    ols_res = OLS(data, np.ones(len(data))).fit()
-    return durbin_watson(ols_res.resid)
+from sympy import N
 
 def breusch_pagan(data):
     '''
@@ -77,7 +70,23 @@ def get_desctiptive_stats(df:pd.DataFrame, plots:bool=False):
     if p < alpha: 
         print("The null of no-excess kurtosis can be rejected and distribution is fat-tailed")
     else:
-        print("The null of no-excess cannot be rejected")
+        print("The null of no-excess kurtosis cannot be rejected")
+
+    
+    print('#############')
+    print(' Jarque-Bera ')
+    print('#############')
+
+    p = stats.jarque_bera(data)[1]  # alternativ hypotese er at dist har fat tails
+
+    print("p = {:.5f}".format(p))
+
+    if p < alpha: 
+        print("The null of no skewness and kurtosis=3 can be rejected")
+    else:
+        print("The null of no skewness and kurtosis=3 cannot be rejected")
+
+    
 
     print('#################################################')
     print(' Are returns statistically signifcant from zero? ')
@@ -95,16 +104,17 @@ def get_desctiptive_stats(df:pd.DataFrame, plots:bool=False):
     print(' Autocorrelation ')
     print('#################')
 
-    print('FIND OUT TO INTERPRET')
+    nlags = 5 
 
-    # dw = durbin_watson(data)
+    ljung_box = acorr_ljungbox(data,lags = nlags,return_df=True)
 
-    # print(f"dw = {dw:.3f} ADD INTERPRETATION from critical vals")
+    for i in range(nlags):
+        print(f"{i+1} lag(s): p-value = {ljung_box.loc[i+1, 'lb_pvalue']}")
 
-    # if plots:
-    #     plt.rc("figure", figsize=(12,8))
-    #     plot_acf(data)
-    #     plt.show()
+    if plots:
+        plt.rc("figure", figsize=(12,8))
+        plot_acf(data)
+        plt.show()
 
     print('##############')
     print(' Stationarity ')
