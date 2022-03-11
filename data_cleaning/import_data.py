@@ -14,6 +14,8 @@ def import_data(fx_pair:str) -> pd.DataFrame:
     # convert 
     if fx_pair in ['EURUSD', 'GBPUSD']:
         df[['px_last','px_bid', 'px_ask']] = 1 / df[['px_last','px_bid', 'px_ask']]
+        # switch bid and ask!!!!
+        df['px_bid'], df['px_ask'] = df['px_ask'].copy(), df['px_bid'].copy()
     
     # calc returns and rolling std dev
     df['log_ret'] = (np.log(df.px_last) - np.log(df.px_last.shift(1)))
