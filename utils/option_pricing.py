@@ -12,10 +12,10 @@ class BS:
         self.S = S
 
     def d1(self):
-        return(log(self.S/self.K)+(self.r-self.rf+self.sigma**2/2.)*self.T)/(self.sigma*sqrt(self.T))
+        return (log(self.S/self.K) + (self.rd - self.rf + (self.sigma**2)/2)*self.T)/(self.sigma * sqrt(self.T))
 
     def d2(self):
-        return self.d1(self)-self.sigma*sqrt(self.T)
+        return self.d1()-self.sigma*sqrt(self.T)
 
     def call(self):
         return self.S*exp(-self.rf*self.T)*norm.cdf(self.d1())-self.K*exp(-self.rd*self.T)*norm.cdf(self.d2())
