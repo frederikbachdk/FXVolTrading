@@ -26,6 +26,8 @@ def get_rolling_vol_forecasts(return_series,
 
     forecasts = {}
 
+    print(f"Number of forecasts: {n_forecasts}")
+
     for i in range(n_forecasts):
         sys.stdout.write(".")
         sys.stdout.flush()
