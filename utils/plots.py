@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import seaborn as sns
 from typing import Literal
+from utils.helper_functions import enumerate2
 
-
+# function for plotting returns
 def plot_returns(df:pd.DataFrame):
 
     df = df.dropna()
@@ -24,10 +25,11 @@ def plot_returns(df:pd.DataFrame):
     plt.gca().xaxis.set_major_formatter(myFmt)
     
     plt.title('Daily Returns')
-    
+    plt.set_facecolor('w')
+    plt.tight_layout()
     plt.show()
 
-
+# function for plotting implied volatility
 def plot_iv(df:pd.DataFrame, months_out:Literal['1m','3m','1y']):
 
     df = df.dropna()
@@ -46,10 +48,11 @@ def plot_iv(df:pd.DataFrame, months_out:Literal['1m','3m','1y']):
     plt.gca().xaxis.set_major_formatter(myFmt)
     
     plt.title('Daily Implied Volatility')
-    
+    plt.set_facecolor('w')
+    plt.tight_layout()
     plt.show()
 
-# plot grid over 
+# plot grid over fx pairs
 def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y'], cols:int = 2):
     # determine number of rows, given the number of columns
     rows = math.ceil(len(df_dict.keys()) / cols)
@@ -62,9 +65,6 @@ def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y'], c
                             sharey=False
                             )
 
-    # convert the axes from a nxn array to a (n*m)x1 array
-    ax_array = axes.ravel()
-
     # get labels right
     if series == 'log_ret':
         label = '%'
@@ -72,6 +72,11 @@ def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y'], c
     else: 
         label = 'IV' 
         title = 'Daily Implied Volatility'
+
+    plt.title(title)
+
+    # convert the axes from a nxn array to a (n*m)x1 array
+    ax_array = axes.ravel()
 
     # iterate through the dataframe dictionary keys and use enumerate
     for idx, key in enumerate(df_dict.keys()):
@@ -87,12 +92,7 @@ def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y'], c
     plt.savefig(f"../figures/{series}_grid.png")
     plt.show()
 
-
-def enumerate2(xs, start=0, step=2):
-    for x in xs:
-        yield (start, x)
-        start += step
-
+# plot pairs x {return, iv} grid
 def plot_returns_and_vol(df_dict:dict, vol_period:str = Literal['1m','3m','1y']):
     # determine number of rows, given the number of columns
     ncols = 2
@@ -101,7 +101,7 @@ def plot_returns_and_vol(df_dict:dict, vol_period:str = Literal['1m','3m','1y'])
     # create the figure with multiple axes
     fig, axes = plt.subplots(nrows=nrows, 
                             ncols=ncols, 
-                            figsize=(17, 20), # width, height in inches
+                            figsize=(17, 22), # width, height in inches
                             sharex=False, 
                             sharey=False
                             )
@@ -130,13 +130,63 @@ def plot_returns_and_vol(df_dict:dict, vol_period:str = Literal['1m','3m','1y'])
 
     # set row and column titles
     for ax, col in zip(axes[0], cols):
-        ax.set_title(col,fontweight='bold')
+        ax.set_title(col,size=15,fontweight='bold')
 
     for ax, row in zip(axes[:,0], rows):
-        ax.set_ylabel(row.strip('USD') + '      ', rotation=0, size='large', fontweight='bold')
+        ax.set_ylabel(row.strip('USD') + '      ', rotation=0, size=15, fontweight='bold')
     
     # last formating
     fig.set_facecolor('w')
     plt.tight_layout()
     plt.savefig(f"../figures/returns_and_v{vol_period}_grid.png")
+    plt.show()
+
+# function for plotting quotes
+def plot_trades(df: pd.DataFrame, thres_up:float, thres_down:float):
+    """
+    Plot the forecast/implied ratio and the straddles traded.
+    """
+
+    # check that the df indeed has the ratio we need
+    if 'cond_forecast_to_implied' not in df.columns:
+        return
+
+    sns.set(rc={"figure.figsize": (12, 9)})
+    plt.title(f"Forecast/Implied Ratio (including traded straddles)", fontweight='bold')  # {pair} 
+
+    # ratio
+    sns.lineplot(
+        data=df,
+        x=df.index,
+        y="cond_forecast_to_implied",
+        #color="blue",
+        label="Forecast/Implied Ratio",
+    )
+
+    # thresholds
+    plt.axhline(thres_up, linestyle='--', color='black', label='Thresholds')
+    plt.axhline(thres_down, linestyle='--', color='black')
+
+    # straddles bought and sold
+    markers = {"Buy straddle": "^", "Sell straddle": "v"}
+    color_dict = dict(
+        {
+            "Buy straddle": "green",
+            "Sell straddle": "red",
+        }
+    )
+    sns.scatterplot(
+        data=df.query("direction_flag in ('Buy straddle','Sell straddle')"),  
+        x=df.query("direction_flag in ('Buy straddle','Sell straddle')").index,
+        y="cond_forecast_to_implied", 
+        hue="direction_flag", 
+        style="direction_flag", 
+        markers=markers, 
+        s=100, 
+        palette=color_dict
+    )
+    # last finishing off
+    plt.ylabel('Forecast/Implied Ratio')
+    plt.legend(title='', loc='upper right')
+    plt.gcf().autofmt_xdate()
     plt.show()
