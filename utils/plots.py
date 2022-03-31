@@ -84,7 +84,8 @@ def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y'], c
     for idx, key in enumerate(df_dict.keys()):
         ax = ax_array[idx]
         df = df_dict[key].dropna()
-        df[series].plot(ax=ax, ylabel=label, title=key, visible=True)
+        df[series].plot(ax=ax, ylabel=label, visible=True)
+        ax.set_title(key, fontweight='bold')
         ax.set_xlim(df['log_ret'].index.min(), df['log_ret'].index.max())
         ax.xaxis.label.set_visible(False)
 
@@ -97,7 +98,7 @@ def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y'], c
 
 
 # plot return distribution grid over fx pairs
-def plot_return_distribution(df_dict:dict, cols:int = 2):
+def plot_return_distribution(df_dict:dict, bins: int = 50, cols:int = 2):
     # determine number of rows, given the number of columns
     rows = math.ceil(len(df_dict.keys()) / cols)
 
@@ -109,6 +110,7 @@ def plot_return_distribution(df_dict:dict, cols:int = 2):
                             sharey=False
                             )
 
+
     # convert the axes from a nxn array to a (n*m)x1 array
     ax_array = axes.ravel()
 
@@ -116,20 +118,21 @@ def plot_return_distribution(df_dict:dict, cols:int = 2):
     for idx, key in enumerate(df_dict.keys(),):
         ax = ax_array[idx]
         df = df_dict[key].dropna()
-        df['log_ret'].hist(bins=50, ax=ax, density=True)
+        df['log_ret'].hist(bins=bins, ax=ax, density=True)
         ax.set_xlabel('Return')
-        # if idx in [0,2,4]: ax.set_ylabel('Y-LABEL')
-        ax.set_title(key)
+        if idx in [0,2,4]: ax.set_ylabel('Observations')
+        ax.set_title(key, fontweight='bold')
 
         # fit normal distribution
         xmin, xmax = df['log_ret'].min(), df['log_ret'].max()
         mu, std = stats.norm.fit(df['log_ret']) 
         x = np.linspace(xmin, xmax, 1000)
         p = stats.norm.pdf(x, mu, std)
-        ax.plot(x, p, 'k', linewidth=2)
+        ax.plot(x, p, 'k', linewidth=1.5)
 
     # last formating
     fig.set_facecolor('w')
+    #plt.figtext(0.5, 0.01, f"Number of bins: {bins}", ha="left", fontsize=8, bbox={"facecolor":"white", "alpha":0.5, "pad":5})
     plt.tight_layout()
     plt.savefig(f"../figures/return_dist.png")
     plt.show()
