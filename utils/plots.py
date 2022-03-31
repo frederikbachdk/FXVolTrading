@@ -1,5 +1,7 @@
 import math
+import numpy as np
 import pandas as pd
+from scipy import stats
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import seaborn as sns
@@ -91,6 +93,48 @@ def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y'], c
     plt.tight_layout()
     plt.savefig(f"../figures/{series}_grid.png")
     plt.show()
+
+
+
+# plot return distribution grid over fx pairs
+def plot_return_distribution(df_dict:dict, cols:int = 2):
+    # determine number of rows, given the number of columns
+    rows = math.ceil(len(df_dict.keys()) / cols)
+
+    # create the figure with multiple axes
+    fig, axes = plt.subplots(nrows=rows, 
+                            ncols=cols, 
+                            figsize=(12, 15), 
+                            sharex=False, 
+                            sharey=False
+                            )
+
+    # convert the axes from a nxn array to a (n*m)x1 array
+    ax_array = axes.ravel()
+
+    # iterate through the dataframe dictionary keys and use enumerate
+    for idx, key in enumerate(df_dict.keys(),):
+        ax = ax_array[idx]
+        df = df_dict[key].dropna()
+        df['log_ret'].hist(bins=50, ax=ax, density=True)
+        ax.set_xlabel('Return')
+        # if idx in [0,2,4]: ax.set_ylabel('Y-LABEL')
+        ax.set_title(key)
+
+        # fit normal distribution
+        xmin, xmax = df['log_ret'].min(), df['log_ret'].max()
+        mu, std = stats.norm.fit(df['log_ret']) 
+        x = np.linspace(xmin, xmax, 1000)
+        p = stats.norm.pdf(x, mu, std)
+        ax.plot(x, p, 'k', linewidth=2)
+
+    # last formating
+    fig.set_facecolor('w')
+    plt.tight_layout()
+    plt.savefig(f"../figures/return_dist.png")
+    plt.show()
+
+       
 
 # plot pairs x {return, iv} grid
 def plot_returns_and_vol(df_dict:dict, vol_period:str = Literal['1m','3m','1y']):

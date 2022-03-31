@@ -1,0 +1,90 @@
+USDRUB
+count    5760.000000
+mean        0.000180
+std         0.007844
+min        -0.173462
+25%        -0.002269
+50%         0.000000
+75%         0.002220
+max         0.170009
+Name: log_ret, dtype: float64
+Skewness : 0.555
+Excess kurtosis: 85.732
+Mean (normalized) bid-ask spread: 0.001
+Number of observations: 4429
+---------------------------
+USDZAR
+count    5760.000000
+mean        0.000157
+std         0.010755
+min        -0.066299
+25%        -0.006023
+50%        -0.000180
+75%         0.005918
+max         0.154965
+Name: log_ret, dtype: float64
+Skewness : 0.838
+Excess kurtosis: 6.938
+Mean (normalized) bid-ask spread: 0.003
+Number of observations: 5740
+---------------------------
+USDBRL
+count    5760.000000
+mean        0.000183
+std         0.010466
+min        -0.103436
+25%        -0.005072
+50%         0.000000
+75%         0.005328
+max         0.071116
+Name: log_ret, dtype: float64
+Skewness : 0.062
+Excess kurtosis: 2.813
+Mean (normalized) bid-ask spread: 0.001
+Number of observations: 4800
+---------------------------
+EURUSD
+count    5760.000000
+mean        0.000021
+std         0.005907
+min        -0.025185
+25%        -0.003316
+50%         0.000000
+75%         0.003302
+max         0.034831
+Name: log_ret, dtype: float64
+Skewness : 0.042
+Excess kurtosis: -1.210
+Mean (normalized) bid-ask spread: 0.000
+Number of observations: 5725
+---------------------------
+USDJPY
+count    5760.000000
+mean        0.000014
+std         0.006017
+min        -0.037820
+25%        -0.003105
+50%         0.000000
+75%         0.003259
+max         0.055042
+Name: log_ret, dtype: float64
+Skewness : -0.045
+Excess kurtosis: 1.524
+Mean (normalized) bid-ask spread: 0.000
+Number of observations: 5740
+---------------------------
+GBPUSD
+count    5760.000000
+mean       -0.000033
+std         0.005719
+min        -0.084405
+25%        -0.003179
+50%         0.000000
+75%         0.003227
+max         0.029962
+Name: log_ret, dtype: float64
+Skewness : -0.755
+Excess kurtosis: 7.436
+Mean (normalized) bid-ask spread: 0.000
+Number of observations: 5740
+---------------------------

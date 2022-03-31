@@ -53,7 +53,7 @@ def get_desctiptive_stats(df:pd.DataFrame, plots:bool=False):
         ax1.set_title('Return distribution')
         xmin, xmax = plt.xlim()
         mu, std = stats.norm.fit(data) 
-        x = np.linspace(xmin, xmax, 100)
+        x = np.linspace(xmin, xmax, 1000)
         p = stats.norm.pdf(x, mu, std)
         
         plt.plot(x, p, 'k', linewidth=2)

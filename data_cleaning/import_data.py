@@ -22,4 +22,8 @@ def import_data(fx_pair:str) -> pd.DataFrame:
     df['rolling_21d_realized_stdev'] = df['log_ret'].rolling(21).apply(
         lambda x: 1/21 * np.abs(x.sum())*np.sqrt(252)
     )
+
+    # calc bid-ask spread
+    df['normalized_bid_ask_spread'] = (df['px_ask'] - df['px_bid'])/((df['px_ask'] + df['px_bid'])/2)
+    
     return df
