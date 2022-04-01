@@ -1,3 +1,4 @@
+from cProfile import label
 import math
 import numpy as np
 import pandas as pd
@@ -97,7 +98,7 @@ def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y'], c
 
 
 
-# plot return distribution grid over fx pairs
+# plot return distribution grid over fx pairs (super inefficient)
 def plot_return_distribution(df_dict:dict, bins: int = 50, cols:int = 2):
     # determine number of rows, given the number of columns
     rows = math.ceil(len(df_dict.keys()) / cols)
@@ -119,16 +120,24 @@ def plot_return_distribution(df_dict:dict, bins: int = 50, cols:int = 2):
         ax = ax_array[idx]
         df = df_dict[key].dropna()
         df['log_ret'].hist(bins=bins, ax=ax, density=True)
-        ax.set_xlabel('Return')
+
+        # fit pdf 
+        xmin, xmax = df['log_ret'].min(), df['log_ret'].max()
+        x = np.linspace(xmin, xmax, 1000)
+        ## norm
+        mu, std = stats.norm.fit(df['log_ret']) 
+        norm_dist = stats.norm.pdf(x, mu, std)
+        ax.plot(x, norm_dist, 'b', linewidth=1.5, label = 'fitted normal pdf')
+        ## student t
+        #degrees_of_freedom, loc, scale = stats.t.fit(df['log_ret']) 
+        #student_dist = stats.t.pdf(x, loc, scale)
+        #ax.plot(x, student_dist, 'r', linewidth=1.5, label = f"fitted students-t pdf (df={degrees_of_freedom:.1f})")
+        
+        # formating
+        if idx in [4,5]: ax.set_xlabel('Return')
+        if idx == 0: ax.legend()
         if idx in [0,2,4]: ax.set_ylabel('Observations')
         ax.set_title(key, fontweight='bold')
-
-        # fit normal distribution
-        xmin, xmax = df['log_ret'].min(), df['log_ret'].max()
-        mu, std = stats.norm.fit(df['log_ret']) 
-        x = np.linspace(xmin, xmax, 1000)
-        p = stats.norm.pdf(x, mu, std)
-        ax.plot(x, p, 'k', linewidth=1.5)
 
     # last formating
     fig.set_facecolor('w')
