@@ -20,7 +20,7 @@ def import_data(fx_pair:str) -> pd.DataFrame:
     # calc returns and rolling std dev
     df['log_ret'] = (np.log(df.px_last) - np.log(df.px_last.shift(1)))
     df['rolling_21d_realized_stdev'] = df['log_ret'].rolling(21).apply(
-        lambda x: 1/21 * np.abs(x.sum())*np.sqrt(252)
+        lambda x: 1/21 * (np.sum(np.abs(x)*np.sqrt(252)))
     )
 
     # calc bid-ask spread

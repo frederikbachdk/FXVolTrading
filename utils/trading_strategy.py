@@ -11,6 +11,7 @@ def gen_trading_signals(df:pd.DataFrame,thres_up:float, thres_down:float):
             counter -= 1
             continue
         else:
+            
             if row['cond_forecast_to_implied'] > thres_up:
                 df.at[index,'direction'] = 1
                 counter = 21  # 1m
