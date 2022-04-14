@@ -28,7 +28,6 @@ def plot_returns(df:pd.DataFrame):
     plt.gca().xaxis.set_major_formatter(myFmt)
     
     plt.title('Daily Returns')
-    plt.set_facecolor('w')
     plt.tight_layout()
     plt.show()
 
@@ -51,12 +50,20 @@ def plot_iv(df:pd.DataFrame, months_out:Literal['1m','3m','1y']):
     plt.gca().xaxis.set_major_formatter(myFmt)
     
     plt.title('Daily Implied Volatility')
-    plt.set_facecolor('w')
     plt.tight_layout()
     plt.show()
 
 # plot grid over fx pairs
-def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y'], cols:int = 2):
+def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y','bid_ask_spread_pips'], cols:int = 2):
+    """
+    Function for plotting a grid of plots for a given dictionary of dataframes.
+    'series' Args:
+        'log_ret',
+        'v1m',
+        'v3m',
+        'v1y',
+        'bid_ask_spread_pips'
+    """
     # determine number of rows, given the number of columns
     rows = math.ceil(len(df_dict.keys()) / cols)
 
@@ -72,9 +79,13 @@ def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y'], c
     if series == 'log_ret':
         label = '%'
         title = 'Daily Returns'
+    elif series == 'bid_ask_spread_pips':
+        label = 'Pips'
+        title = 'Bid/Ask Spread'
     else: 
         label = 'IV' 
         title = 'Daily Implied Volatility'
+
 
     plt.title(title)
 
