@@ -30,9 +30,9 @@ def import_data(fx_pair:str) -> pd.DataFrame:
     # A pip is thus equivalent to 1/100 of 1% or one basis point.
 
     if fx_pair in ['USDJPY',]:  # For currency pairs such as the EUR/JPY and USD/JPY, the value of a pip is 1/100 divided by the exchange rate
-        df['bid_ask_spread_pips'] = (df['px_ask'] - df['px_bid']) * 100 
+        df['bid_ask_spread_pips'] = 100 * (df['px_ask'] - df['px_bid'])   #/ ((df['px_ask'] + df['px_bid'])/2)
     else:
-        df['bid_ask_spread_pips'] = (df['px_ask'] - df['px_bid']) * 10000
+        df['bid_ask_spread_pips'] = 10000 * (df['px_ask'] - df['px_bid']) #/ ((df['px_ask'] + df['px_bid'])/2)
 
     #df['normalized_bid_ask_spread'] = df['bid_ask_spread']/((df['px_ask'] + df['px_bid'])/2)
     
