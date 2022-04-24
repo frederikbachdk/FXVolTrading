@@ -136,19 +136,20 @@ def plot_return_distribution(df_dict:dict, bins: int = 50, cols:int = 2):
         xmin, xmax = df['log_ret'].min(), df['log_ret'].max()
         x = np.linspace(xmin, xmax, 1000)
         ## norm
-        mu, std = stats.norm.fit(df['log_ret']) 
-        norm_dist = stats.norm.pdf(x, mu, std)
-        ax.plot(x, norm_dist, 'b', linewidth=1.5, label = 'fitted normal pdf')
+        #mu, std = stats.norm.fit(df['log_ret']) 
+        #norm_dist = stats.norm.pdf(x, mu, std)
+        #ax.plot(x, norm_dist, 'b', linewidth=1.5, label = 'fitted normal pdf')
         ## student t
-        #degrees_of_freedom, loc, scale = stats.t.fit(df['log_ret']) 
-        #student_dist = stats.t.pdf(x, loc, scale)
-        #ax.plot(x, student_dist, 'r', linewidth=1.5, label = f"fitted students-t pdf (df={degrees_of_freedom:.1f})")
+        degrees_of_freedom, loc, scale = stats.t.fit(df['log_ret']) 
+        student_dist = stats.t.pdf(x, loc, scale, degrees_of_freedom)
+        ax.plot(x, student_dist, 'r', linewidth=1.5, label = f"fitted students-t pdf (df={degrees_of_freedom:.1f})")
         
         # formating
         if idx in [4,5]: ax.set_xlabel('Return')
         if idx == 0: ax.legend()
         if idx in [0,2,4]: ax.set_ylabel('Observations')
         ax.set_title(key, fontweight='bold')
+        ax.set_xlim(-0.045,0.045)
 
     # last formating
     fig.set_facecolor('w')
@@ -222,17 +223,17 @@ def plot_trades(df: pd.DataFrame, thres_up:float, thres_down:float):
     plt.title(f"Forecast/Implied Ratio (including traded straddles)", fontweight='bold')  # {pair} 
 
     # ratio
-    sns.lineplot(
+    ax1 = sns.lineplot(
         data=df,
         x=df.index,
         y="cond_forecast_to_implied",
         #color="blue",
         label="Forecast/Implied Ratio",
     )
-
+    ax2 = ax1.twinx()
     # thresholds
-    plt.axhline(thres_up, linestyle='--', color='black', label='Thresholds')
-    plt.axhline(thres_down, linestyle='--', color='black')
+    ax1.axhline(thres_up, linestyle='--', color='black', label='Thresholds')
+    ax1.axhline(thres_down, linestyle='--', color='black')
 
     # straddles bought and sold
     markers = {"Buy straddle": "^", "Sell straddle": "v"}
@@ -250,8 +251,19 @@ def plot_trades(df: pd.DataFrame, thres_up:float, thres_down:float):
         style="direction_flag", 
         markers=markers, 
         s=100, 
-        palette=color_dict
+        palette=color_dict,
+        ax = ax1
     )
+
+    sns.lineplot(
+        data=df,
+        x=df.index,
+        y="v1m",
+        color="red",
+        label="Implied volatility (RHS)",
+        ax=ax2
+    )
+
     # last finishing off
     plt.ylabel('Forecast/Implied Ratio')
     plt.legend(title='', loc='upper right')
