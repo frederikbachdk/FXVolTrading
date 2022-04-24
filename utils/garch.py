@@ -12,11 +12,13 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore", category=ConvergenceWarning)
 
 def get_rolling_vol_forecasts(return_series, 
-                                model, 
-                                horizon : int=21, 
-                                fitting_end_date : str = "2021-01-01",
-                                #type_forecast : Literal['rolling','recursive'] = 'rolling'
-                                ):
+                            model, 
+                            horizon : int=21, 
+                            fitting_end_date : str = "2021-01-01",
+                            #type_forecast : Literal['rolling','recursive'] = 'rolling'
+                            ):
+    print(f"Fitting rolling {model.volatility} model with a {model.distribution}.")
+
     index = return_series.index
 
     start_loc = 0
@@ -40,5 +42,7 @@ def get_rolling_vol_forecasts(return_series,
         temp = res.forecast(horizon=horizon, reindex=False).variance
         fcast = temp.iloc[0]
         forecasts[fcast.name] = fcast
+    
+    vol_forecasts = pd.DataFrame(forecasts).T.multiply(np.sqrt(252))
 
-    return pd.DataFrame(forecasts).T
+    return vol_forecasts

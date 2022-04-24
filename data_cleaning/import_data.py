@@ -20,10 +20,22 @@ def import_data(fx_pair:str) -> pd.DataFrame:
     # calc returns and rolling std dev
     df['log_ret'] = (np.log(df.px_last) - np.log(df.px_last.shift(1)))
     df['rolling_21d_realized_stdev'] = df['log_ret'].rolling(21).apply(
-        lambda x: 1/21 * np.abs(x.sum())*np.sqrt(252)
+        lambda x: np.sqrt(252)* 1/21 * (np.sum(np.abs(x*100)))
     )
 
-    # calc bid-ask spread
-    df['normalized_bid_ask_spread'] = (df['px_ask'] - df['px_bid'])/((df['px_ask'] + df['px_bid'])/2)
+    # Calc bid-ask spread
+    # Pip is an acronym for "percentage in point" or "price interest point." 
+    # A pip is the smallest price move that an exchange rate can make based on forex market convention. 
+    # Most currency pairs are priced out to four decimal places and the pip change is the last (fourth) decimal point. 
+    # A pip is thus equivalent to 1/100 of 1% or one basis point.
+
+    if fx_pair in ['USDJPY',]:  # For currency pairs such as the EUR/JPY and USD/JPY, the value of a pip is 1/100 divided by the exchange rate
+        df['normalized_bid_ask_spread'] = 100* (df['px_ask'] - df['px_bid'])  / ((df['px_ask'] + df['px_bid'])/2)
+        df['normalized_bid_ask_spread'] = np.maximum(df['normalized_bid_ask_spread'], 0)
+    else:
+        df['normalized_bid_ask_spread'] = 100*(df['px_ask'] - df['px_bid']) / ((df['px_ask'] + df['px_bid'])/2)
+        df['normalized_bid_ask_spread'] = np.maximum(df['normalized_bid_ask_spread'], 0)
+
+    #df['normalized_bid_ask_spread'] = df['bid_ask_spread']/((df['px_ask'] + df['px_bid'])/2)
     
     return df
