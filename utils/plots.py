@@ -54,7 +54,7 @@ def plot_iv(df:pd.DataFrame, months_out:Literal['1m','3m','1y']):
     plt.show()
 
 # plot grid over fx pairs
-def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y','bid_ask_spread_pips'], cols:int = 2):
+def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y','normalized_bid_ask_spread'], cols:int = 2):
     """
     Function for plotting a grid of plots for a given dictionary of dataframes.
     'series' Args:
@@ -62,7 +62,7 @@ def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y','bi
         'v1m',
         'v3m',
         'v1y',
-        'bid_ask_spread_pips'
+        'normalized_bid_ask_spread'
     """
     # determine number of rows, given the number of columns
     rows = math.ceil(len(df_dict.keys()) / cols)
@@ -79,9 +79,9 @@ def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y','bi
     if series == 'log_ret':
         label = '%'
         title = 'Daily Returns'
-    elif series == 'bid_ask_spread_pips':
-        label = 'Pips'
-        title = 'Bid/Ask Spread'
+    elif series == 'normalized_bid_ask_spread':
+        label = '%'
+        title = 'Normalized Bid/Ask Spread'
     else: 
         label = 'IV' 
         title = 'Daily Implied Volatility'
@@ -96,15 +96,57 @@ def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y','bi
     for idx, key in enumerate(df_dict.keys()):
         ax = ax_array[idx]
         df = df_dict[key].dropna()
-        df[series].plot(ax=ax, ylabel=label, visible=True)
+        df[series].plot(ax=ax)
         ax.set_title(key, fontweight='bold')
         ax.set_xlim(df['log_ret'].index.min(), df['log_ret'].index.max())
         ax.xaxis.label.set_visible(False)
+        if idx in [0,2,4]: ax.set_ylabel(label)
+
 
     # last formating
     fig.set_facecolor('w')
     plt.tight_layout()
     plt.savefig(f"../figures/{series}_grid.png")
+    plt.show()
+
+
+# plot grid over fx pairs
+def plot_grid_forecasted_vs_realized(df_dict:dict, implied:bool, cols:int = 2):
+    """
+    Function for plotting a grid of plots for a given dictionary of dataframes.
+    """
+    # determine number of rows, given the number of columns
+    rows = math.ceil(len(df_dict.keys()) / cols)
+
+    # create the figure with multiple axes
+    fig, axes = plt.subplots(nrows=rows, 
+                            ncols=cols, 
+                            figsize=(12, 15), 
+                            sharex=False, 
+                            sharey=False
+                            )
+
+    # convert the axes from a nxn array to a (n*m)x1 array
+    ax_array = axes.ravel()
+
+    # iterate through the dataframe dictionary keys and use enumerate
+    for idx, key in enumerate(df_dict.keys()):
+        ax = ax_array[idx]
+        df = df_dict[key].dropna()
+        df['forward_rolling_21d_realized_stdev'].plot(ax=ax, label='21-days-forward Realized Volatility', visible=True)
+        df['cond_vol_forecast'].plot(ax=ax, label='GARCH(1,1) 21-days-ahead Volatility Forecast', visible=True)
+        if implied: df['v1m'].plot(ax=ax, label='1m Implied Volatility', visible=True)
+        ax.set_title(key, fontweight='bold')
+        #ax.set_xlim(df['log_ret'].index.min(), df['log_ret'].index.max())
+        ax.xaxis.label.set_visible(False)
+    
+        if idx == 0: ax.legend()
+        if idx in [0,2,4]: ax.set_ylabel('Ann. Volatility')
+
+    # last formating
+    fig.set_facecolor('w')
+    plt.tight_layout()
+    plt.savefig(f"../figures/realized_forecasted.png")
     plt.show()
 
 
@@ -136,13 +178,13 @@ def plot_return_distribution(df_dict:dict, bins: int = 50, cols:int = 2):
         xmin, xmax = df['log_ret'].min(), df['log_ret'].max()
         x = np.linspace(xmin, xmax, 1000)
         ## norm
-        #mu, std = stats.norm.fit(df['log_ret']) 
-        #norm_dist = stats.norm.pdf(x, mu, std)
-        #ax.plot(x, norm_dist, 'b', linewidth=1.5, label = 'fitted normal pdf')
+        mu, std = stats.norm.fit(df['log_ret']) 
+        norm_dist = stats.norm.pdf(x, mu, std)
+        ax.plot(x, norm_dist, 'b', linewidth=1.5, label = 'fitted normal pdf')
         ## student t
-        degrees_of_freedom, loc, scale = stats.t.fit(df['log_ret']) 
-        student_dist = stats.t.pdf(x, loc, scale, degrees_of_freedom)
-        ax.plot(x, student_dist, 'r', linewidth=1.5, label = f"fitted students-t pdf (df={degrees_of_freedom:.1f})")
+        # degrees_of_freedom, loc, scale = stats.t.fit(df['log_ret']) 
+        # student_dist = stats.t.pdf(x, loc, scale, degrees_of_freedom)
+        # ax.plot(x, student_dist, 'r', linewidth=1.5, label = f"fitted students-t pdf (df={degrees_of_freedom:.1f})")
         
         # formating
         if idx in [4,5]: ax.set_xlabel('Return')

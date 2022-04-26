@@ -37,17 +37,17 @@ def gen_trading_signals(df:pd.DataFrame, thres_up:float, thres_down:float, days_
 def forecasting_accuracy(df:pd.DataFrame) -> None:
     print('Out of sample forecast accuracy measures:')
     # Root Mean Squared Error
-    rmse = np.sqrt(np.mean((df['rolling_21d_realized_stdev'] - df['cond_vol_forecast'])**2))
+    rmse = np.sqrt(np.mean((df['forward_rolling_21d_realized_stdev'] - df['cond_vol_forecast'])**2))
     print(f"RMSE: {rmse:.2f}")
     # Mean Absolute Error
-    mae = np.mean(np.abs(df['rolling_21d_realized_stdev'] - df['cond_vol_forecast']))
+    mae = np.mean(np.abs(df['forward_rolling_21d_realized_stdev'] - df['cond_vol_forecast']))
     print(f"MAE: {mae:.2f}")
     # Theil's U
-    theilu = rmse / (np.sqrt(np.mean(df['rolling_21d_realized_stdev']**2)) + np.sqrt(np.mean(df['cond_vol_forecast']**2)))
+    theilu = rmse / (np.sqrt(np.mean(df['forward_rolling_21d_realized_stdev']**2)) + np.sqrt(np.mean(df['cond_vol_forecast']**2)))
     print(f"Theil U: {theilu:.2f}")
     # CDC
     indicator = np.where(
-        (df['rolling_21d_realized_stdev']-df['rolling_21d_realized_stdev'].shift(1))*(df['cond_vol_forecast']-df['rolling_21d_realized_stdev'].shift(1))>0,
+        (df['forward_rolling_21d_realized_stdev']-df['forward_rolling_21d_realized_stdev'].shift(1))*(df['cond_vol_forecast']-df['forward_rolling_21d_realized_stdev'].shift(1))>0,
         1,
         0)
     cdc = np.mean(indicator) * 100

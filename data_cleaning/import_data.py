@@ -22,6 +22,9 @@ def import_data(fx_pair:str) -> pd.DataFrame:
     df['rolling_21d_realized_stdev'] = df['log_ret'].rolling(21).apply(
         lambda x: np.sqrt(252)* 1/21 * (np.sum(np.abs(x*100)))
     )
+    df['forward_rolling_21d_realized_stdev'] = df['log_ret'].rolling(21).apply(
+        lambda x: np.sqrt(252)* 1/21 * (np.sum(np.abs(x*100)))
+    ).shift(-21)
 
     # Calc bid-ask spread
     # Pip is an acronym for "percentage in point" or "price interest point." 
