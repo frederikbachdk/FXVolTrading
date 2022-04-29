@@ -1,5 +1,6 @@
 from cProfile import label
 import math
+from statistics import mode
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -252,7 +253,7 @@ def plot_returns_and_vol(df_dict:dict, vol_period:str = Literal['1m','3m','1y'])
     plt.show()
 
 # function for plotting quotes
-def plot_trades(df: pd.DataFrame, thres_up:float, thres_down:float):
+def plot_trades(df: pd.DataFrame, thres_up:float, thres_down:float, include_implied:bool=False, include_forecasted:bool=False):
     """
     Plot the forecast/implied ratio and the straddles traded.
     """
@@ -269,45 +270,68 @@ def plot_trades(df: pd.DataFrame, thres_up:float, thres_down:float):
         data=df,
         x=df.index,
         y="cond_forecast_to_implied",
-        #color="blue",
+        color="black",
         label="Forecast/Implied Ratio",
+        lw=2.5,
     )
-    ax2 = ax1.twinx()
     # thresholds
-    ax1.axhline(thres_up, linestyle='--', color='black', label='Thresholds')
-    ax1.axhline(thres_down, linestyle='--', color='black')
+    ax1.axhline(thres_up, linestyle='--', color='green', linewidth=1, label='Upper threshold (buy straddle territory)')
+    ax1.axhline(thres_down, linestyle='--', color='red', linewidth=1, label='Lower threshold (sell straddle territory)')
 
     # straddles bought and sold
-    markers = {"Buy straddle": "^", "Sell straddle": "v"}
+    markers = {"Bought straddle": "^", "Sold straddle": "v"}
     color_dict = dict(
         {
-            "Buy straddle": "green",
-            "Sell straddle": "red",
+            "Bought straddle": "green",
+            "Sold straddle": "red",
         }
     )
     sns.scatterplot(
-        data=df.query("direction_flag in ('Buy straddle','Sell straddle')"),  
-        x=df.query("direction_flag in ('Buy straddle','Sell straddle')").index,
+        data=df.query("direction_flag in ('Bought straddle','Sold straddle')"),  
+        x=df.query("direction_flag in ('Bought straddle','Sold straddle')").index,
         y="cond_forecast_to_implied", 
         hue="direction_flag", 
         style="direction_flag", 
         markers=markers, 
-        s=100, 
+        s=200, 
         palette=color_dict,
         ax = ax1
     )
+    ax1.legend(title='', loc='upper left',)
+    ax1.set_ylabel('Forecast/Implied Ratio')
 
-    sns.lineplot(
-        data=df,
-        x=df.index,
-        y="v1m",
-        color="red",
-        label="Implied volatility (RHS)",
-        ax=ax2
-    )
+    # implied volatility and forecasted volatility
+    if include_implied or include_forecasted:
+        ax2 = ax1.twinx()
+        if include_implied: 
+            sns.lineplot(
+                data=df,
+                x=df.index,
+                y="v1m",
+                #color="darkorange",
+                label="Implied volatility (RHS)",
+                lw=1.5,
+                alpha=0.5,
+                ax=ax2
+            )
+
+        if include_forecasted:
+            sns.lineplot(
+                data=df,
+                x=df.index,
+                y="cond_vol_forecast",
+                #color="black",
+                label="Forecasted volatility (RHS)",
+                alpha=0.5,
+                lw=1.5,
+                ax=ax2
+            )
+
+        ax2.legend(title='', loc='upper right')
+        ax2.set_ylabel('Annualized Volatility')
+        ax2.grid(False)
+
 
     # last finishing off
-    plt.ylabel('Forecast/Implied Ratio')
-    plt.legend(title='', loc='upper right')
     plt.gcf().autofmt_xdate()
     plt.show()
