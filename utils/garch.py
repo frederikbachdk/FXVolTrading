@@ -17,7 +17,7 @@ def get_rolling_vol_forecasts(return_series,
                             fitting_end_date : str = "2021-01-01",
                             #type_forecast : Literal['rolling','recursive'] = 'rolling'
                             ):
-    print(f"Fitting rolling {model.volatility} model with a {model.distribution}.")
+    print(f"\nFitting rolling {model.volatility} model with a {model.distribution}.")
 
     index = return_series.index
 
@@ -39,7 +39,7 @@ def get_rolling_vol_forecasts(return_series,
         #else:
         #    res = model.fit(last_obs=i + end_loc, disp="off")
 
-        temp = res.forecast(horizon=horizon, reindex=False).variance
+        temp = np.sqrt(res.forecast(horizon=horizon, reindex=False).variance)
         fcast = temp.iloc[0]
         forecasts[fcast.name] = fcast
     
