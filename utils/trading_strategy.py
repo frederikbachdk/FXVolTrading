@@ -32,7 +32,7 @@ def gen_trading_signals(df:pd.DataFrame,
     # returns in vol points 
     df['gearing'] = np.where(
         df['direction'] != 0, 
-        1 + np.abs(df['cond_vol_forecast'] - df['v1m']) / df['v1m'],  
+        1 + np.abs(df['cond_vol_forecast'] - df['v1m']) / df['v1m']/thres_up,  
         0)  
 
     if days_holding_period == 21: # hold to maturity: 
@@ -56,7 +56,7 @@ def gen_trading_signals(df:pd.DataFrame,
     df['direction_flag'] = np.select(conditions, flags)
 
 
-def calc_pnl(df:pd.DataFrame, plot:bool=False) -> pd.DataFrame:
+def calc_pnl(df:pd.DataFrame, plot:bool=False, return_df:bool=True) -> pd.DataFrame:
     ''' Needs to be called AFTER we have generated trading signals
     '''
     if 'v1m_close_trade' in df.columns:
@@ -92,7 +92,8 @@ def calc_pnl(df:pd.DataFrame, plot:bool=False) -> pd.DataFrame:
                                                                     xlabel='Date', 
                                                                     xlim=[df_performance.index.min(), df_performance.index.max()],
                                                                     ylabel='Normalized PnL (%)');
+    print('Number of trades: ', len(df_performance['direction'])- 1)                                                         
     print('Normalized PnL: {:.2f}%'.format(100*df_performance['normalized_pnl'].loc[df_performance['normalized_pnl'].last_valid_index()]))
     print('Normalized PnL w. Gearing: {:.2f}%'.format(100*df_performance['normalized_pnl_w_gearing'].loc[df_performance['normalized_pnl_w_gearing'].last_valid_index()]))
 
-    return df_performance
+    if return_df: return df_performance
