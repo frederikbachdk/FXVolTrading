@@ -3,8 +3,6 @@ import pandas as pd
 import sys
 from typing import Literal
 from arch import arch_model
-
-
 import warnings
 from sklearn.exceptions import ConvergenceWarning
 
