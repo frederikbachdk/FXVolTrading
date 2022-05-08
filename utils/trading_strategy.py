@@ -93,6 +93,8 @@ def calc_pnl(df:pd.DataFrame, plot:bool=False, return_df:bool=True) -> pd.DataFr
                                                                     xlim=[df_performance.index.min(), df_performance.index.max()],
                                                                     ylabel='Normalized PnL (%)');
     print('Number of trades: ', len(df_performance['direction'])- 1)                                                         
+    print('Mean return {:.2f}%'.format(df_performance['returns'].mean()))
+    print('Mean bid-ask spread {:.2f}%'.format(df_performance['normalized_bid_ask_spread'].mean()))
     print('Normalized PnL: {:.2f}%'.format(100*df_performance['normalized_pnl'].loc[df_performance['normalized_pnl'].last_valid_index()]))
     print('Normalized PnL w. Gearing: {:.2f}%'.format(100*df_performance['normalized_pnl_w_gearing'].loc[df_performance['normalized_pnl_w_gearing'].last_valid_index()]))
 

@@ -9,7 +9,7 @@ fx =[
     'GBPUSD',
     'USDRUB',
     'USDZAR',
-    'USDBRL'
+    'BRLUSD',
 ]
 
 # implied vol data
@@ -23,8 +23,8 @@ raw_data_ex = pd.read_excel(raw_data_path, sheet_name='exchangerates',header=[0,
     # clean column names
 raw_data_ex.columns = [' '.join(col).strip() for col in raw_data_ex.columns.values]
 raw_data_ex.columns = [col.replace(' Curncy ','') for col in raw_data_ex.columns.values]
-raw_data_ex.columns = [col.replace('USDEUR','EURUSD') for col in raw_data_ex.columns.values]
-raw_data_ex.columns = [col.replace('USDGBP','GBPUSD') for col in raw_data_ex.columns.values]
+#raw_data_ex.columns = [col.replace('USDEUR','EURUSD') for col in raw_data_ex.columns.values]
+#raw_data_ex.columns = [col.replace('USDGBP','GBPUSD') for col in raw_data_ex.columns.values]
 
     # set and clean index
 raw_data_ex.set_index(raw_data_ex.columns[raw_data_ex.columns.str.contains('Dates')][0],inplace=True)

@@ -253,7 +253,7 @@ def plot_returns_and_vol(df_dict:dict, vol_period:str = Literal['1m','3m','1y'])
     plt.show()
 
 # function for plotting quotes
-def plot_trades(df: pd.DataFrame, thres_up:float, thres_down:float, include_implied:bool=False, include_forecasted:bool=False):
+def plot_trades(df: pd.DataFrame, thres_up:float, thres_down:float, include_implied:bool=False, include_forecasted:bool=False, include_realized:bool=False):
     """
     Plot the forecast/implied ratio and the straddles traded.
     """
@@ -263,7 +263,7 @@ def plot_trades(df: pd.DataFrame, thres_up:float, thres_down:float, include_impl
         return
 
     sns.set(rc={"figure.figsize": (12, 9)})
-    plt.title(f"Forecast/Implied Ratio (including traded straddles)", fontweight='bold')  # {pair} 
+    #plt.title(f"Forecast/Implied Ratio (including traded straddles)", fontweight='bold')  # {pair} 
 
     # ratio
     ax1 = sns.lineplot(
@@ -301,7 +301,7 @@ def plot_trades(df: pd.DataFrame, thres_up:float, thres_down:float, include_impl
     ax1.set_ylabel('Forecast/Implied Ratio')
 
     # implied volatility and forecasted volatility
-    if include_implied or include_forecasted:
+    if include_implied or include_forecasted or include_realized:
         ax2 = ax1.twinx()
         if include_implied: 
             sns.lineplot(
@@ -322,6 +322,18 @@ def plot_trades(df: pd.DataFrame, thres_up:float, thres_down:float, include_impl
                 y="cond_vol_forecast",
                 #color="black",
                 label="Forecasted volatility (RHS)",
+                alpha=0.5,
+                lw=1.5,
+                ax=ax2
+            )
+        
+        if include_realized:
+            sns.lineplot(
+                data=df,
+                x=df.index,
+                y="forward_rolling_21d_realized_stdev",
+                #color="black",
+                label="(Forward) realized volatility (RHS)",
                 alpha=0.5,
                 lw=1.5,
                 ax=ax2
