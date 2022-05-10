@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 data/raw/.DS_Store
 data/raw/old/.DS_Store
+.DS_Store
