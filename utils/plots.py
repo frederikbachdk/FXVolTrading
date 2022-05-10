@@ -97,11 +97,19 @@ def plot_grid(df_dict:dict, series:str = Literal['log_ret','v1m','v3m','v1y','no
     for idx, key in enumerate(df_dict.keys()):
         ax = ax_array[idx]
         df = df_dict[key].dropna()
-        df[series].plot(ax=ax)
+        df[series].plot(ax=ax, label='Normalized Bid/Ask Spread')
+        if series == 'normalized_bid_ask_spread': 
+            ax.axhline(y=0.25, color='r', linestyle='--', label='Dunis and Huang (2002) transaction cost of 25bp.')
+            if idx == 3:
+                ax.axvline(x="2016-11-06", color='black', linestyle='--', label='President Donald Trump elected')
+            if idx == 5:
+                ax.axvline(x="2016-06-25", color='black', linestyle='--', label='Brexit referendum')
         ax.set_title(key, fontweight='bold')
         ax.set_xlim(df['log_ret'].index.min(), df['log_ret'].index.max())
         ax.xaxis.label.set_visible(False)
         if idx in [0,2,4]: ax.set_ylabel(label)
+        if idx == 0: ax.legend()
+
 
 
     # last formating

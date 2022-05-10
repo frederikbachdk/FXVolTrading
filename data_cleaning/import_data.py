@@ -38,7 +38,5 @@ def import_data(fx_pair:str) -> pd.DataFrame:
     else:
         df['normalized_bid_ask_spread'] = 100*(df['px_ask'] - df['px_bid']) / ((df['px_ask'] + df['px_bid'])/2)
         df['normalized_bid_ask_spread'] = np.maximum(df['normalized_bid_ask_spread'], 0)
-
-    #df['normalized_bid_ask_spread'] = df['bid_ask_spread']/((df['px_ask'] + df['px_bid'])/2)
     
     return df
